@@ -42,7 +42,14 @@ class Product(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     price = Column(Float)
+    photo = Column(String)
 
+    calories = Column(Float)
+    weight = Column(Float)
+    type = Column()
+
+# TODO:
+# таблицу с блюдами
 
 class Order(Base):
     __tablename__ = "orders"

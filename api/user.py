@@ -1,34 +1,54 @@
-from fastapi import status, APIRouter, Depends
+from typing import Optional
 
+from fastapi import APIRouter, Response, status
+from fastapi import Depends
 from scheme import scheme
-from service.user import AuthService
+
+from service.user import UserService
+from utils.JWT import JWTBearer
 
 router = APIRouter(
-    prefix='/auth',
-    tags=['auth'],
+    prefix='/user',
+    tags=['user'],
 )
 
 
-@router.post(
-    '/register',
-    status_code=status.HTTP_201_CREATED,
-    response_model=scheme.UserResponseSchema
-)
-async def create_user(
-        payload: scheme.CreateUserSchema,
-        auth_service: AuthService = Depends()
+@router.get('/me', dependencies=[Depends(JWTBearer())], status_code=status.HTTP_200_OK,
+            response_model=Optional[scheme.UserResponseSchema])
+def get_me(
+        user_service: UserService = Depends()
 ):
-    return auth_service.register_new_user(payload)
+    return user_service.get_me()
 
-
-
-@router.post(
-    '/authenticate',
-    status_code=status.HTTP_200_OK,
-    response_model=scheme.TokenSchema
+@router.patch(
+    '/update_email',
+    dependencies=[Depends(JWTBearer())],
+    status_code=status.HTTP_204_NO_CONTENT
 )
-async def authenticate_user(
-        payload: scheme.LoginUserSchema,
-        auth_service: AuthService = Depends(),
+def update_email(
+        payload: scheme.UpdateUserEmailSchema,
+        user_service: UserService = Depends()
 ):
-    return auth_service.authenticate_user(payload)
+    return user_service.update_email(payload)
+
+
+@router.patch(
+    '/update_password',
+    dependencies=[Depends(JWTBearer())],
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def update_password(
+        payload: scheme.UpdateUserPasswordSchema,
+        user_service: UserService = Depends()
+):
+    return user_service.update_password(payload)
+
+
+@router.delete(
+    '/me_delete',
+    dependencies=[Depends(JWTBearer())],
+    status_code=status.HTTP_204_NO_CONTENT)
+def delete_me(
+        user_service: UserService = Depends()
+):
+    user_service.delete_me()

@@ -1,11 +1,18 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+import os
+import dotenv
+
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:toor@82.208.99.19:5432/testdb"
+dotenv.load_dotenv()
+
+SQLALCHEMY_DATABASE_URL = os.getenv("db")
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+metadata = MetaData()
+
 
 def get_db():
     with SessionLocal() as db:

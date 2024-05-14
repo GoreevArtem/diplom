@@ -1,89 +1,92 @@
-import time
+from datetime import datetime
 
-from fastapi import status, Depends, HTTPException
-from jose import jwt
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
+from fastapi import status, Depends
 
 from database import models
-from database.db import get_db
+from database.db import SessionLocal, get_db
 from scheme import scheme
-from setting.settings import settings
 from utils import hash_pwd
+from utils.JWT import JWTBearer
 
 
-class AuthService:
+class UserService:
 
     def __init__(
             self,
-            session: Session = Depends(get_db),
-
+            token=Depends(JWTBearer()),
+            session: SessionLocal = Depends(get_db),
     ):
+        self.token = token
+        self.user_id = JWTBearer.decodeJWT(token).get("user_id")
         self.session = session
 
-    def __get_user_by_email(
-            self,
-            payload: scheme.UserBaseSchema,
+    def __get_user_by_id(
+            self
     ):
-        return self.session.query(models.User).filter(
-            models.User.email == payload.email
-        ).first()
-
-    def __get_user_by_name(
-            self,
-            payload: scheme.UserBaseSchema,
-    ):
-        return self.session.query(models.User).filter(
-            models.User.name == payload.name).first()
-
-    @staticmethod
-    def _not_user(user):
-        if not user:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail='Incorrect your data')
-
-    @staticmethod
-    def _verify_password(payload, user):
-        if not hash_pwd.verify_password(payload.password, user.password):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail='Incorrect your data')
-
-    @staticmethod
-    def _create_token(user):
-        payload = {
-            "user_id": str(user.id),
-            "expires": time.time() + settings.ACCESS_TOKEN_EXPIRES_IN * 60
-        }
-        access_token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
-        return access_token
-
-    @staticmethod
-    def _delete_token(user, access_token):
-        del access_token[str(user.id)]
-
-    def register_new_user(
-            self,
-            payload: scheme.CreateUserSchema
-    ) -> scheme.UserResponseSchema:
-        if self.__get_user_by_email(payload) or self.__get_user_by_name(payload):
+        user = self.session.query(models.User).get(self.user_id)
+        if user is not None:
+            return user
+        else:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='Account already exist'
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Not authenticated',
+                headers={"WWW-Authenticate": "Bearer"},
             )
-        payload.password = hash_pwd.hash_password(payload.password)
 
-        new_user = models.User(**payload.dict())
+    def get_me(
+            self
+    ):
+        return self.__get_user_by_id()
 
-        self.session.add(new_user)
-        self.session.commit()
-        self.session.refresh(new_user)
-        return new_user
-
-    def authenticate_user(
+    def delete_me(
             self,
-            payload: scheme.LoginUserSchema,
-    ) -> scheme.TokenSchema:
-        user = self.__get_user_by_email(payload)
-        self._not_user(user)
-        self._verify_password(payload, user)
-        access_token = self._create_token(user=user)
-        return scheme.TokenSchema(access_token=access_token)
+    ):
+        user = self.__get_user_by_id()
+        self.session.delete(user)
+        self.session.commit()
+
+    def update_email(
+            self,
+            payload: scheme.UpdateUserEmailSchema
+    ):
+        user = self.__get_user_by_id()
+        if not user:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+        if payload.email is not None:
+            user_email = self.session.query(models.User).filter(models.User.email == payload.email).first()
+            if (user_email is not None) and (payload.email == user_email.email):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail='Email already exist',
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            user.email = payload.email
+
+        user.updated_at = datetime.now()
+
+        self.session.commit()
+        self.session.refresh(user)
+
+    def update_password(
+            self,
+            payload: scheme.UpdateUserPasswordSchema
+    ):
+        user = self.__get_user_by_id()
+        if not user:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+        if payload.password is not None:
+            if hash_pwd.verify_password(payload.password, user.password):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail='The old password has been entered',
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            user.password = hash_pwd.hash_password(payload.password)
+
+        user.updated_at = datetime.now()
+
+        self.session.commit()
+        self.session.refresh(user)
