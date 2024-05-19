@@ -1,9 +1,9 @@
 from typing import Optional
 
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, status
 from fastapi import Depends
-from scheme import scheme
 
+from scheme import scheme
 from service.user import UserService
 from utils.JWT import JWTBearer
 
@@ -19,6 +19,7 @@ def get_me(
         user_service: UserService = Depends()
 ):
     return user_service.get_me()
+
 
 @router.patch(
     '/update_email',

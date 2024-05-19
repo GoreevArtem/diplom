@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
@@ -45,3 +46,14 @@ class TokenSchema(BaseModel):
 
 class Address(OrmMode):
     address: Optional[str]
+
+
+class StatusOrder(str, Enum):
+    DELIVERED: str = "delivered"
+    INPROCESS: str = "in process"
+
+
+class Order(OrmMode):
+    date: datetime
+    status: StatusOrder
+    address: Address

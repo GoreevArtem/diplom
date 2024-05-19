@@ -6,43 +6,29 @@ from fastapi import status, Depends
 from database import models
 from database.db import SessionLocal, get_db
 from scheme import scheme
+from service.get_user import GETUSER
 from utils import hash_pwd
 from utils.JWT import JWTBearer
 
 
-class UserService:
+class UserService(GETUSER):
 
     def __init__(
             self,
             token=Depends(JWTBearer()),
             session: SessionLocal = Depends(get_db),
     ):
-        self.token = token
-        self.user_id = JWTBearer.decodeJWT(token).get("user_id")
-        self.session = session
-
-    def __get_user_by_id(
-            self
-    ):
-        user = self.session.query(models.User).get(self.user_id)
-        if user is not None:
-            return user
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail='Not authenticated',
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+        super().__init__(token=token, session=session)
 
     def get_me(
             self
     ):
-        return self.__get_user_by_id()
+        return self._get_user_by_id()
 
     def delete_me(
             self,
     ):
-        user = self.__get_user_by_id()
+        user = self._get_user_by_id()
         self.session.delete(user)
         self.session.commit()
 
@@ -50,7 +36,7 @@ class UserService:
             self,
             payload: scheme.UpdateUserEmailSchema
     ):
-        user = self.__get_user_by_id()
+        user = self._get_user_by_id()
         if not user:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
@@ -73,7 +59,7 @@ class UserService:
             self,
             payload: scheme.UpdateUserPasswordSchema
     ):
-        user = self.__get_user_by_id()
+        user = self._get_user_by_id()
         if not user:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
 
@@ -90,3 +76,4 @@ class UserService:
 
         self.session.commit()
         self.session.refresh(user)
+

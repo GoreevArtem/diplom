@@ -18,7 +18,12 @@ class User(Base):
     updated_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text("now()"))
 
-    addresses = relationship("Address", back_populates="user")
+    addresses = relationship(
+        'Address',
+        back_populates="user",
+        cascade='save-update, merge, delete',
+        passive_deletes=True,
+    )
 
 
 class Address(Base):
@@ -26,8 +31,8 @@ class Address(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     address = Column(String, index=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete='CASCADE'))
     user = relationship(
         "User",
         back_populates="addresses",
@@ -46,7 +51,8 @@ class Product(Base):
 
     calories = Column(Float)
     weight = Column(Float)
-    type = Column()
+    # type = Column()
+
 
 # TODO:
 # таблицу с блюдами
