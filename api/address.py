@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from fastapi import Depends, APIRouter, status
 
@@ -15,7 +15,7 @@ router = APIRouter(
 @router.get('/get_addresses',
             dependencies=[Depends(JWTBearer())],
             status_code=status.HTTP_200_OK,
-            response_model=Optional[List[scheme.Address]])
+            response_model=Optional[Dict[int, scheme.Address]])
 def get_address(
         address_service: AddressService = Depends()
 ):

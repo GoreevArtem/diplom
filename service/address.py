@@ -58,7 +58,7 @@ class AddressService(GETUSER):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="addresses not found"
             )
-        return addr
+        return dict(zip(range(1, len(addr) + 1), addr))
 
     def delete_address(
             self,

@@ -36,12 +36,12 @@ class DishesService(GETUSER):
         data = self.session.query(Item).filter(Item.is_dish == flag).all()
         return dict(zip(range(1, len(data) + 1), data))
     
-    def add_dish_to_basket(self, item_id, quantity):
+    def add_nutrition_to_basket(self, flag, item_id, quantity):
         user = self._get_user_by_id()
         if not user:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         
-        if self.session.query(Item).filter(Item.id == item_id, Item.is_dish == True).first():
+        if self.session.query(Item).filter(Item.id == item_id, Item.is_dish == flag).first():
             ordered_product = self.session.query(OrderedProduct).filter(
                 OrderedProduct.user_id == self.user_id,
                 OrderedProduct.item_id == item_id

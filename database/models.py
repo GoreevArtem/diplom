@@ -57,13 +57,8 @@ class Item(Base):
     calories = Column(Float)
     weight = Column(Float)
     type = Column(String)  # Type can indicate if it's a vegetable, fruit, dish, etc.
-    is_dish = Column(Boolean, default=False)  # Indicates if it's a prepared dish
+    is_dish = Column(Boolean, nullable=False, default=False)
 
-    # # Foreign key relationships
-    # user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    # user = relationship("User", backref="items")
-
-    # Optional: If you want to associate items with orders
     ordered_products = relationship("OrderedProduct", back_populates="item")
 
 

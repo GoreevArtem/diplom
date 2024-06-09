@@ -1,8 +1,5 @@
-from typing import List, Optional
-
 from fastapi import Depends, APIRouter, status
 
-from scheme import scheme
 from service.dishes import DishesService
 from utils.JWT import JWTBearer
 
@@ -11,33 +8,26 @@ router = APIRouter(
     tags=['backet'],
 )
 
-
-@router.get('/get_all_dishes',
+@router.get('/get_all_nutrition',
             dependencies=[Depends(JWTBearer())],
             status_code=status.HTTP_200_OK)
-def get_address(
+def get_products(
+        flag: bool,
         dishes_service: DishesService = Depends()
 ):
-    return dishes_service.get_nutrition(flag=True)
-
-@router.get('/get_products',
-            dependencies=[Depends(JWTBearer())],
-            status_code=status.HTTP_200_OK)
-def get_address(
-        dishes_service: DishesService = Depends()
-):
-    return dishes_service.get_nutrition(flag=False)
+    return dishes_service.get_nutrition(flag=flag)
 
 
-@router.put('/add_dish_to_basket',
+@router.put('/add_nutrition_to_basket',
             dependencies=[Depends(JWTBearer())],
             status_code=status.HTTP_201_CREATED)
-def add_dish_to_basket(
-        item_id,
-        quantity,
+def add_nutrition_to_basket(
+        flag: bool,
+        item_id: float,
+        quantity: int,
         dishes_service: DishesService = Depends()
 ):
-    dishes_service.add_dish_to_basket(item_id, quantity)
+    dishes_service.add_nutrition_to_basket(flag=flag, item_id=item_id, quantity=quantity)
 
 
 @router.patch('/update_quantity_in_basket',
