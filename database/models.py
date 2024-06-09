@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, TIMESTAMP, text, UUID
+from sqlalchemy import Boolean, Column, Integer, String, Float, ForeignKey, TIMESTAMP, text, UUID
 from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
@@ -25,6 +25,12 @@ class User(Base):
         passive_deletes=True,
     )
 
+    ordered_products = relationship(
+        "OrderedProduct",
+        back_populates="user",
+        cascade='save-update, merge, delete',
+        passive_deletes=True,
+    )
 
 class Address(Base):
     __tablename__ = "addresses"
@@ -41,21 +47,25 @@ class Address(Base):
     )
 
 
-class Product(Base):
-    __tablename__ = "products"
+class Item(Base):
+    __tablename__ = "items"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    price = Column(Float)
+    description = Column(String)
     photo = Column(String)
-
     calories = Column(Float)
     weight = Column(Float)
-    # type = Column()
+    type = Column(String)  # Type can indicate if it's a vegetable, fruit, dish, etc.
+    is_dish = Column(Boolean, default=False)  # Indicates if it's a prepared dish
 
+    # # Foreign key relationships
+    # user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    # user = relationship("User", backref="items")
 
-# TODO:
-# таблицу с блюдами
+    # Optional: If you want to associate items with orders
+    ordered_products = relationship("OrderedProduct", back_populates="item")
+
 
 class Order(Base):
     __tablename__ = "orders"
@@ -74,9 +84,17 @@ class OrderedProduct(Base):
     __tablename__ = "ordered_products"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     order_id = Column(Integer, ForeignKey("orders.id"))
-    product_id = Column(Integer, ForeignKey("products.id"))
-    quantity = Column(Integer)
+    item_id = Column(Integer, ForeignKey("items.id"))
+    quantity = Column(Integer, default=0)
 
+    user = relationship(
+        "User",
+        back_populates="ordered_products",
+        cascade='save-update, merge, delete',
+        passive_deletes=True,
+    )
+    
     order = relationship("Order", backref="ordered_products")
-    product = relationship("Product", backref="ordered_products")
+    item = relationship("Item", back_populates="ordered_products")
