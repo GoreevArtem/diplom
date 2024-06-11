@@ -58,6 +58,7 @@ class Item(Base):
     weight = Column(Float)
     type = Column(String)  # Type can indicate if it's a vegetable, fruit, dish, etc.
     is_dish = Column(Boolean, nullable=False, default=False)
+    price = Column(Float, nullable=False, default=100)
 
     ordered_products = relationship("OrderedProduct", back_populates="item")
 

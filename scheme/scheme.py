@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -57,3 +57,9 @@ class Order(OrmMode):
     date: datetime
     status: StatusOrder
     address: Address
+
+# Модель данных для рецепта
+class Recipe(BaseModel):
+    recipe_name: str
+    ingredients: List[str]
+    instructions: str

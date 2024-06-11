@@ -10,6 +10,8 @@ class settings:
     DB_USER = os.environ.get("DB_USER")
     DB_PASS = os.environ.get("DB_PASS")
 
+    MONGO_HOST = os.environ.get("MONGO_HOST")
+    MONGO_PORT = os.environ.get("MONGO_PORT")
 
     ACCESS_TOKEN_EXPIRES_IN = 2400
     REFRESH_TOKEN_EXPIRES_IN = 60
