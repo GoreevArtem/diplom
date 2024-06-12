@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, EmailStr
 
@@ -63,3 +63,7 @@ class Recipe(BaseModel):
     recipe_name: str
     ingredients: List[str]
     instructions: str
+    photo: Union[str, None]
+
+class Image(BaseModel):
+    url: str

@@ -25,8 +25,8 @@ class User(Base):
         passive_deletes=True,
     )
 
-    ordered_products = relationship(
-        "OrderedProduct",
+    food_basket = relationship(
+        "FoodBasket",
         back_populates="user",
         cascade='save-update, merge, delete',
         passive_deletes=True,
@@ -60,7 +60,7 @@ class Item(Base):
     is_dish = Column(Boolean, nullable=False, default=False)
     price = Column(Float, nullable=False, default=100)
 
-    ordered_products = relationship("OrderedProduct", back_populates="item")
+    food_basket = relationship("FoodBasket", back_populates="item")
 
 
 class Order(Base):
@@ -76,8 +76,8 @@ class Order(Base):
     address = relationship("Address", backref="orders")
 
 
-class OrderedProduct(Base):
-    __tablename__ = "ordered_products"
+class FoodBasket(Base):
+    __tablename__ = "food_basket"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
@@ -87,10 +87,10 @@ class OrderedProduct(Base):
 
     user = relationship(
         "User",
-        back_populates="ordered_products",
+        back_populates="food_basket",
         cascade='save-update, merge, delete',
         passive_deletes=True,
     )
     
-    order = relationship("Order", backref="ordered_products")
-    item = relationship("Item", back_populates="ordered_products")
+    order = relationship("Order", backref="food_basket")
+    item = relationship("Item", back_populates="food_basket")
