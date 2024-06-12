@@ -17,17 +17,16 @@ class PostSingleton:
 
     def get_posts(self):
         data = [{**post, '_id': str(post['_id'])} for post in self.collection.find()]
-        if data:
-            return dict(zip(range(1, len(data) + 1), data))
-        else:
+        if not data:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
-
-        
+        return dict(zip(range(1, len(data) + 1), data))
+       
     def get_post(self, post_id: str):
-        if data:= self.collection.find_one({"_id": ObjectId(post_id)}):
-            return data
-        else:
-            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        data=self.collection.find_one({"_id": ObjectId(post_id)})
+        if not data:
+            raise HTTPException(status.HTTP_409_CONFLICT)
+        data['_id'] = str(data['_id'])
+        return data
 
     def add_post(self, post_data: Recipe):
         result=self.collection.insert_one(post_data.dict())

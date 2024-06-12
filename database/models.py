@@ -63,25 +63,12 @@ class Item(Base):
     food_basket = relationship("FoodBasket", back_populates="item")
 
 
-class Order(Base):
-    __tablename__ = "orders"
-
-    id = Column(Integer, primary_key=True, index=True)
-    date = Column(String, index=True)
-    status = Column(String)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    address_id = Column(Integer, ForeignKey("addresses.id"))
-
-    user = relationship("User", backref="orders")
-    address = relationship("Address", backref="orders")
-
-
 class FoodBasket(Base):
     __tablename__ = "food_basket"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    order_id = Column(Integer, ForeignKey("orders.id"))
+
     item_id = Column(Integer, ForeignKey("items.id"))
     quantity = Column(Integer, default=0)
 
@@ -92,5 +79,22 @@ class FoodBasket(Base):
         passive_deletes=True,
     )
     
-    order = relationship("Order", backref="food_basket")
     item = relationship("Item", back_populates="food_basket")
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(TIMESTAMP(timezone=True), 
+                  nullable=False, server_default=text("now()"))
+    status = Column(String)
+
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    address_id = Column(Integer, ForeignKey("addresses.id"))
+
+    food_basket_id = Column(Integer, ForeignKey("food_basket.id"))
+
+    food_basket = relationship("FoodBasket", backref="orders")
+
+    user = relationship("User", backref="orders")
+    address = relationship("Address", backref="orders")

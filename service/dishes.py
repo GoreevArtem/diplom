@@ -1,8 +1,6 @@
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
-from database import models
 from database.db import get_db, SessionLocal
 from database.models import Item, FoodBasket
 from service.get_user import GETUSER

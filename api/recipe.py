@@ -16,23 +16,21 @@ async def create_recipe(recipe: Recipe):
 
 # Получение рецептов
 @router.get("/get_all_recipes",
-            status_code=status.HTTP_200_OK,
-            response_model=Dict[int, Recipe]
+            status_code=status.HTTP_200_OK
             )
-async def  get_recipes():
+async def get_recipes():
     return post_singleton.get_posts()
 
 @router.get("/get_recipe/{recipe_id}",
             status_code=status.HTTP_200_OK,
-            response_model=Recipe
             )
-async def  get_recipes(recipe_id: str):
+async def get_recipes(recipe_id: str):
     return post_singleton.get_post(recipe_id)
 
 
 # Обновление рецепта
 @router.patch("/update_recipe/{recipe_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def  update_recipe(recipe_id: str, recipe: Recipe):
+async def update_recipe(recipe_id: str, recipe: Recipe):
     return post_singleton.update_post(recipe_id, recipe)
 
 # Удаление рецепта
@@ -42,5 +40,5 @@ async def  delete_recipe(recipe_id: str):
 
 # Удаление всех постов
 @router.delete("/delete_all_recipes", status_code=status.HTTP_204_NO_CONTENT)
-async def  delete_all_recipe():
+async def delete_all_recipe():
     return post_singleton.delete_all_posts()

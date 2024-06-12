@@ -14,8 +14,7 @@ router = APIRouter(
 
 @router.get('/get_addresses',
             dependencies=[Depends(JWTBearer())],
-            status_code=status.HTTP_200_OK,
-            response_model=Optional[Dict[int, scheme.Address]])
+            status_code=status.HTTP_200_OK)
 def get_address(
         address_service: AddressService = Depends()
 ):
@@ -25,7 +24,7 @@ def get_address(
 @router.put(
     '/add_address',
     dependencies=[Depends(JWTBearer())],
-    status_code=status.HTTP_201_CREATED)
+    status_code=status.HTTP_204_NO_CONTENT)
 def add_address(
         payload: scheme.Address,
         address_service: AddressService = Depends()
