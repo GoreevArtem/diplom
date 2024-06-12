@@ -1,12 +1,7 @@
 FROM arm32v7/python:3.9-slim
 
-WORKDIR /code
-
-COPY ./requirements.txt /code/requirements.txt
-
-RUN apt update && apt install -y curl
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+# set work directory
+WORKDIR /api
 
 # set .env variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -16,10 +11,13 @@ RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
     && pip install psycopg2
 
-RUN pip install --upgrade pip
+RUN apt-get update && apt-get install -y htop libgl1-mesa-glx libglib2.0-0
 
-RUN pip install -r /code/requirements.txt
+# install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-COPY . /code/app
+RUN pip install ultralytics
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# copy project
+COPY . .
