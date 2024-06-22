@@ -4,15 +4,12 @@ import dotenv
 dotenv.load_dotenv()
 
 class settings:
-    DB_HOST = os.environ.get("DB_HOST")
-    DB_PORT = os.environ.get("DB_PORT")
-    DB_NAME = os.environ.get("DB_NAME")
-    DB_USER = os.environ.get("DB_USER")
-    DB_PASS = os.environ.get("DB_PASS")
-
-    MONGO_HOST = os.environ.get("MONGO_HOST")
-    MONGO_PORT = os.environ.get("MONGO_PORT")
-
+    DB_HOST = os.environ.get("POSTGRES_HOST")
+    DB_PORT = os.environ.get("POSTGRES_PORT", 5432)
+    DB_NAME = os.environ.get("POSTGRES_DB")
+    DB_USER = os.environ.get("POSTGRES_USER")
+    DB_PASS = os.environ.get("POSTGRES_PASSWORD")
+    
     ACCESS_TOKEN_EXPIRES_IN = 2400
     REFRESH_TOKEN_EXPIRES_IN = 60
     JWT_ALGORITHM = "HS256"
