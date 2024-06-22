@@ -42,7 +42,10 @@ class AddressService(GETUSER):
 
         self.session.add(new_address)
         self.session.commit()
-        self.session.refresh(user)
+        self.session.refresh(new_address)
+        return self.session.query(models.Address).filter(and_(models.Address.user_id == self.user_id,
+                                                              models.Address.address == str.lower(payload.address)
+        )).first().__dict__["id"]
 
     def get_address(
             self,

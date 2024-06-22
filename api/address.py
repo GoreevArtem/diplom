@@ -24,12 +24,12 @@ def get_address(
 @router.put(
     '/add_address',
     dependencies=[Depends(JWTBearer())],
-    status_code=status.HTTP_204_NO_CONTENT)
+    status_code=status.HTTP_201_CREATED)
 def add_address(
         payload: scheme.Address,
         address_service: AddressService = Depends()
 ):
-    address_service.add_address(payload)
+    return address_service.add_address(payload)
 
 
 @router.delete(

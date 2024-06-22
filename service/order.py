@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import joinedload
 
 from database.db import get_db, SessionLocal
-from database.models import FoodBasket, Order
+from database.models import Address, FoodBasket, Order
 from service.get_user import GETUSER
 from utils.JWT import JWTBearer
 
@@ -16,7 +16,7 @@ class OrderService(GETUSER):
         super().__init__(token=token, session=session)
 
     def create_order(self, address_id: int, food_basket_id: int):
-        if not self.user_id:
+        if not self.user_id or not self.session.query(Address).get(address_id):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
                
         food_basket = self.session.query(FoodBasket).filter(FoodBasket.user_id == self.user_id).all()

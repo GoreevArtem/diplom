@@ -21,11 +21,13 @@ class DishesService(GETUSER):
         for ordered_product in basket:
             item = ordered_product.item
             serialized_item = {
+                "id": ordered_product.id,
                 "item_name": item.name,
+                "item_type": item.type,
+                "quantity": ordered_product.quantity,
+                "price": item.price,
                 "item_calories": item.calories,
                 "item_weight": item.weight,
-                "item_type": item.type,
-                "quantity": ordered_product.quantity
             }
             serialized_basket.append(serialized_item)
         return dict(zip(range(1, len(serialized_basket) + 1), serialized_basket))
